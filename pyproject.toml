@@ -1,3 +1,79 @@
+[build-system]
+build-backend = "setuptools.build_meta"
+requires = ["setuptools"]
+
+[project]
+authors = [
+  {name = "ThreatConnect", email = "support@threatconnect.com"},
+]
+classifiers = [
+  "Development Status :: 5 - Production/Stable",
+  "Intended Audience :: Developers",
+  "Natural Language :: English",
+  "License :: OSI Approved :: Apache Software License",
+  "Operating System :: OS Independent",
+  "Programming Language :: Python",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: Implementation :: CPython",
+  "Programming Language :: Python :: Implementation :: PyPy",
+  "Topic :: Security",
+]
+dependencies = [
+  'arrow',
+  'astunparse',
+  'black',
+  'hvac',
+  'inflect',
+  'isort',
+  'mako',
+  'pyaes',
+  'pydantic',
+  "pytest",
+  "pytest-cov",
+  "pytest-html",
+  "pytest-xdist",
+  'python-dateutil',
+  'redis',
+  'requests',
+  'rich',
+  'semantic_version',
+  'typer[all]',
+]
+description = "ThreatConnect Exchange App Testing Framework"
+dynamic = ["readme", "version"]
+keywords = ["tcex", "threatconnect"]
+license = {text = "Apache-2.0"}
+name = "tcex_app_testing"
+requires-python = ">=3.11"
+
+[project.optional-dependencies]
+dev = [
+  "bandit",
+  "pre-commit",
+  "pydocstyle",
+  "pylint",
+  "pyright",
+  "pyupgrade",
+]
+
+[project.scripts]
+tcex-app-test = "tcex_app_testing.cli.cli:app"
+
+[project.urls]
+Documentation = "https://github.com/ThreatConnect-Inc/tcex-app-testing"
+Source = "https://github.com/ThreatConnect-Inc/tcex-app-testing"
+
+[tool.setuptools.dynamic]
+readme = {file = ["README.md"], content-type = "text/markdown"}
+version = {attr = "tcex_app_testing.__version__"}
+
+[tool.setuptools.packages.find]
+exclude = ["tests"]
+
+#
+# Linters / Formatters
+#
+
 [tool.black]
 line-length = 100
 skip-string-normalization = true
