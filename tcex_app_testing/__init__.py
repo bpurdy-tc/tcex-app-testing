@@ -4,15 +4,7 @@
 import logging
 
 # first-party
-from tcex_app_testing.__metadata__ import (
-    __author__,
-    __author_email__,
-    __description__,
-    __license__,
-    __package_name__,
-    __url__,
-    __version__,
-)
+from tcex_app_testing.__metadata__ import __license__, __version__
 from tcex_app_testing.logger.trace_logger import TraceLogger  # pylint: disable=no-name-in-module
 
 
