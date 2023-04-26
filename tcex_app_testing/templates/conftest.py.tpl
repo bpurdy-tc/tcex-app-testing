@@ -10,23 +10,39 @@ from _pytest.config import Config
 from _pytest.config.argparsing import Parser
 from _pytest.main import Session
 from _pytest.python import Metafunc
+
+
+def validate_deps(deps_dir: Path):
+    """Validate deps directory exists."""
+    if deps_dir.is_dir():
+        sys.path.insert(0, str(deps_dir))  # insert deps directory at the front of the path
+    else:
+        print(
+            f'Running an App requires a "{deps_dir.name}" directory.'
+            '\n\nTry running "tcex deps" to install dependencies.'
+        )
+        sys.exit(1)
+
+
+# validate deps directory and update sys path
+validate_deps(Path.cwd() / 'deps_tests')
+# insert deps module last, so that it's at the front of the path. this matters for ensuring the
+# App runs with the correct dependencies in the deps directory, not the deps_tests directory.
+validate_deps(Path.cwd() / 'deps')
+
 try:
+    # third-party
     from tcex_app_testing.util.render.render import Render
 except ImportError:
     print(
-        'Running an App test requires the tcex-app-testing '
-        'package.\n\nPlease run "pip install tcex-app-testing".'
+        'Running an App test requires the tcex-app-testing package.
+        '\n\nPlease run "pip install tcex-app-testing".'
     )
     sys.exit(1)
 
-# for TcEx 4 and above, all additional packages are in the "deps" directory
-deps_dir = Path.cwd() / 'deps'
-if not deps_dir.is_dir():
-    Render.panel.failure(
-        f'Running an App requires a "deps" directory. Could not find the {deps_dir} '
-        'directory.\n\nTry running "tcex deps" to install dependencies.'
-    )
-sys.path.insert(0, str(deps_dir))  # insert deps directory at the front of the path
+# display tcex app testing framework version
+Render.panel.info(f'''Using tcex-app-testing version {version('tcex-app-testing')}''', 'Version')
+# Render.panel.info(f'''Path {sys.path}''', 'Path')
 
 
 def clear_log_directory():

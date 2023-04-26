@@ -21,6 +21,7 @@ classifiers = [
 dependencies = [
   'arrow',
   'black',
+  'deepdiff',
   'hvac',
   'inflect',
   'isort',
@@ -69,6 +70,9 @@ version = {attr = "tcex_app_testing.__version__"}
 
 [tool.setuptools.packages.find]
 exclude = ["tests"]
+
+[tool.setuptools.package-data]
+"tcex_app_testing.templates" = ["*.tpl"]
 
 #
 # Linters / Formatters
