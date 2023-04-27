@@ -14,7 +14,11 @@ from _pytest.python import Metafunc
 
 def validate_deps(deps_dir: Path):
     """Validate deps directory exists."""
+    # TODO: only insert if not there
     if deps_dir.is_dir():
+        if deps_dir in sys.path:
+            # remove and ensure path is at the front of the list
+            sys.path.remove(deps_dir)
         sys.path.insert(0, str(deps_dir))  # insert deps directory at the front of the path
     else:
         print(
