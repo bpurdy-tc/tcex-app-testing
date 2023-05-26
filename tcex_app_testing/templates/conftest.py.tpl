@@ -3,6 +3,7 @@
 import os
 import shutil
 import sys
+from importlib.metadata import version
 from pathlib import Path
 
 # third-party
@@ -39,14 +40,13 @@ try:
     from tcex_app_testing.util.render.render import Render
 except ImportError:
     print(
-        'Running an App test requires the tcex-app-testing package.
+        'Running an App test requires the tcex-app-testing package.'
         '\n\nPlease run "pip install tcex-app-testing".'
     )
     sys.exit(1)
 
 # display tcex app testing framework version
 Render.panel.info(f'''Using tcex-app-testing version {version('tcex-app-testing')}''', 'Version')
-# Render.panel.info(f'''Path {sys.path}''', 'Path')
 
 
 def clear_log_directory():

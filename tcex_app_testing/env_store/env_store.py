@@ -10,6 +10,7 @@ from hvac.exceptions import InvalidPath, VaultError
 # first-party
 from tcex_app_testing.pleb.cached_property import cached_property
 from tcex_app_testing.pleb.singleton import Singleton
+from tcex_app_testing.render.render import Render
 
 # init logger
 _logger = logging.getLogger(__name__.split('.', maxsplit=1)[0])
@@ -106,7 +107,7 @@ class EnvStore(metaclass=Singleton):
         # provide an error so dev/qa engineer knows that
         # an env var they provide could not be found
         if value is None:
-            raise RuntimeError(
+            Render.panel.failure(
                 f'Could not resolve env variable {env_variable} ({env_var_updated}).'
             )
 
@@ -146,12 +147,17 @@ class EnvStore(metaclass=Singleton):
                 path=path, mount_point=mount_point
             )
         except InvalidPath:
+            Render.panel.warning(f'Error reading from Vault for path {path}. Path was not found.')
             self.log.error(f'step=setup, event=env-store-invalid-path, path={path}')
         except VaultError as e:
+            Render.panel.warning(
+                f'Error reading from Vault for path {path}. Check access and credentials.'
+            )
             self.log.error(
                 f'step=setup, event=env-store-error-reading-path, path={path}, error={e}'
             )
         except Exception:
+            Render.panel.warning(f'Error reading from Vault for path {path}.')
             self.log.error('step=setup, event=env-store-generic-failure')
 
         return data.get('data', {}).get('data', {}).get(key) or default
