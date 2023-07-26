@@ -26,6 +26,7 @@ dependencies = [
   "inflect",
   "isort",
   "mako",
+  "paho-mqtt",
   "pyaes",
   "pydantic<2.0.0",
   "pytest",

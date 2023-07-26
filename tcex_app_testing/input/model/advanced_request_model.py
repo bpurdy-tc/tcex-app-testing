@@ -5,7 +5,6 @@ from typing import Any
 
 # third-party
 from pydantic import BaseModel, Field, validator
-from tcex.input.field_type import EditChoice
 
 
 class AdvancedRequestModel(BaseModel):
@@ -44,7 +43,7 @@ class AdvancedRequestModel(BaseModel):
         inclusion_reason='feature (advancedRequest)',
         requires_definition=True,
     )
-    tc_adv_req_http_method: EditChoice = Field(
+    tc_adv_req_http_method: str = Field(
         None,
         description='The HTTP method for the request.',
         inclusion_reason='feature (advancedRequest)',
