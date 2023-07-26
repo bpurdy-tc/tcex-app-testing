@@ -1,14 +1,15 @@
 """TcEx App Testing Module"""
-
-# pylint: disable=line-too-long
 # standard library
 import inspect
+
+# third-party
+from tcex_app_testing.validator import Validator
 
 
 class Validate:
     """Validate base class for App output validation."""
 
-    def __init__(self, validator: object):
+    def __init__(self, validator: Validator):
         """Initialize class properties."""
         self.validator = validator
 

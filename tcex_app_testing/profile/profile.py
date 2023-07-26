@@ -188,6 +188,11 @@ class Profile:
             _contents['outputs'] = {}
             _updated = True
 
+        # remove options
+        if _contents.get('options'):
+            del _contents['options']
+            _updated = True
+
         # update inputs, converting array to dict
         for input_type in ['defaults', 'optional', 'required']:
             for _, v in _contents.get('inputs', {}).get(input_type, {}).items():

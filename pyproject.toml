@@ -19,25 +19,26 @@ classifiers = [
   "Topic :: Security",
 ]
 dependencies = [
-  'arrow',
-  'astunparse',
-  'black',
-  'hvac',
-  'inflect',
-  'isort',
-  'mako',
-  'pyaes',
-  'pydantic',
+  "arrow",
+  "black",
+  "deepdiff",
+  "hvac",
+  "inflect",
+  "isort",
+  "mako",
+  "pyaes",
+  "pydantic<2.0.0",
   "pytest",
   "pytest-cov",
   "pytest-html",
   "pytest-xdist",
-  'python-dateutil',
-  'redis',
-  'requests',
-  'rich',
-  'semantic_version',
-  'typer[all]',
+  "python-dateutil",
+  "PyYAML",
+  "redis",
+  "requests",
+  "rich",
+  "semantic_version",
+  "typer[all]",
 ]
 description = "ThreatConnect Exchange App Testing Framework"
 dynamic = ["readme", "version"]
@@ -68,7 +69,10 @@ readme = {file = ["README.md"], content-type = "text/markdown"}
 version = {attr = "tcex_app_testing.__version__"}
 
 [tool.setuptools.packages.find]
-exclude = ["tests"]
+exclude = ["tests*", "local-*"]
+
+[tool.setuptools.package-data]
+"tcex_app_testing.templates" = ["*.tpl"]
 
 #
 # Linters / Formatters
@@ -130,6 +134,7 @@ extension-pkg-whitelist = "pydantic"
 exclude = [
   "**/.history",
   "**/__pycache__",
+  "**/local-*",
 ]
 pythonPlatform = "Linux"
 pythonVersion = "3.11"

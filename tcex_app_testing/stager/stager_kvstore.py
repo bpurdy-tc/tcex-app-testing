@@ -26,7 +26,7 @@ class StagerKvstore:
         # properties
         self.log = _logger
 
-    def from_dict(self, staging_data):
+    def from_dict(self, staging_data: dict):
         """Stage redis data from dict"""
         for variable, data in staging_data.items():
             variable_type = self.playbook.get_variable_type(variable)
@@ -40,13 +40,17 @@ class StagerKvstore:
                 ]
 
             if data is not None:
-                self.playbook.create.any(variable, data, when_requested=False)
+                self.playbook.create.any(variable, data, validate=False, when_requested=False)
 
-    def stage(self, variable, data):
+    def stage(
+        self,
+        variable: str,
+        data: bytes | dict | str | list[bytes] | list[dict] | list[str],
+    ):
         """Stage data in redis"""
         self.playbook.create.any(variable, data, when_requested=False)
 
-    def delete_context(self, context):
+    def delete_context(self, context: str):
         """Delete data in redis"""
         keys = self.redis_client.hkeys(context)
         if keys:
@@ -54,7 +58,7 @@ class StagerKvstore:
         return 0
 
     @staticmethod
-    def _decode_binary(binary_data, variable):
+    def _decode_binary(binary_data: bytes, variable: str) -> bytes | None:
         """Base64 decode binary data."""
         try:
             data = None

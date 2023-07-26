@@ -7,6 +7,7 @@ The TcEx App testing framework provides functionality for using pytest to test T
  * arrow (https://pypi.python.org/pypi/arrow)
  * astunparse (https://pypi.python.org/pypi/astunparse)
  * black (https://pypi.org/project/black/)
+ * deepdiff (https://pypi.org/project/deepdiff/)
  * hvac (https://pypi.org/project/hvac/)
  * inflect (https://pypi.python.org/pypi/inflect)
  * isort (https://pypi.org/project/isort/)

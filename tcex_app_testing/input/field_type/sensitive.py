@@ -123,7 +123,7 @@ class Sensitive:
     @classmethod
     def validate_type(cls, value: bytes | str | Self, field: ModelField) -> bytes | str | Self:
         """Raise exception if value is not a String type."""
-        if not isinstance(value, (bytes, str, Sensitive)):
+        if not isinstance(value, bytes | str | Sensitive):
             raise InvalidType(
                 field_name=field.name, expected_types='(bytes, str)', provided_type=type(value)
             )
@@ -132,7 +132,7 @@ class Sensitive:
     @property
     def value(self) -> str:
         """Return the actual value."""
-        if not isinstance(self._sensitive_value, (BinaryVariable, bytes)):
+        if not isinstance(self._sensitive_value, BinaryVariable | bytes):
             # file variables can be used for client certs, json credential,
             # etc and the data is provided as a BinaryVariable object. This
             # is a special case where we need to return the value as a string.
