@@ -67,18 +67,6 @@ def clear_log_directory():
             if os.path.isfile(file_path) and 'tests.log' not in file_path:
                 os.remove(file_path)
 
-
-def pytest_collection(session: Session):  # pylint: disable=unused-argument
-    """Set env var when pytest is in collection mode."""
-    os.environ['PYTEST_IN_COLLECTION'] = 'True'
-
-
-def pytest_collection_finish(session: Session):  # pylint: disable=unused-argument
-    """Clean env var when pytest finishes collection mode."""
-    if 'PYTEST_IN_COLLECTION' in os.environ:
-        del os.environ['PYTEST_IN_COLLECTION']
-
-
 def profiles(profiles_dir: str) -> list:
     """Get all testing profile names for current feature.
 
