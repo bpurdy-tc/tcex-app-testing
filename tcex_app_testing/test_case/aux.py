@@ -13,6 +13,7 @@ from uuid import uuid4
 # third-party
 import jmespath
 import pytest
+import responses
 import urllib3
 from _pytest.config import Config
 from _pytest.monkeypatch import MonkeyPatch
@@ -218,6 +219,8 @@ class Aux:
         pytestconfig: Config,
     ):
         """Stages and sets up the profile given a profile name"""
+        responses.add_passthru(re.compile(r'.*'))
+
         self.log.info(f'step=run, event=init-profile, profile={profile_name}')
         self._profile_runner = ProfileRunner(
             app_inputs=app_inputs,
@@ -251,6 +254,7 @@ class Aux:
         """Stage data for current profile."""
         self.staged_data.update(self.stager.construct_stage_data(self._profile_runner.model.stage))
         self.replace_variables()
+        self.stager.request.stage(self._profile_runner.model.stage.request)
         self.stager.redis.from_dict(self._profile_runner.model_resolved.stage.kvstore)
 
     def replace_variables(self):

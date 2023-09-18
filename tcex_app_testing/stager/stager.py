@@ -11,6 +11,7 @@ from tcex_app_testing.pleb.cached_property import cached_property
 from tcex_app_testing.profile.model.profile_model import StageModel
 from tcex_app_testing.stager.stager_env import StagerEnv
 from tcex_app_testing.stager.stager_kvstore import StagerKvstore
+from tcex_app_testing.stager.stager_request import StagerRequest
 from tcex_app_testing.stager.stager_threatconnect import StagerThreatconnect
 from tcex_app_testing.stager.stager_vault import StagerVault
 
@@ -59,6 +60,11 @@ class Stager:
     def env(self):
         """Get the current instance of Env for staging data"""
         return StagerEnv()
+
+    @cached_property
+    def request(self):
+        """Get the current instance of Env for staging data"""
+        return StagerRequest()
 
     def construct_stage_data(self, stage_model: StageModel) -> dict:
         """Construct the stage data for the profile."""
