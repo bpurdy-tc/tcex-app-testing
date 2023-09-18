@@ -9,7 +9,6 @@ from pathlib import Path
 # third-party
 from _pytest.config import Config
 from _pytest.config.argparsing import Parser
-from _pytest.main import Session
 from _pytest.python import Metafunc
 
 
