@@ -161,25 +161,6 @@ class Aux:
             if cache in self.__dict__:
                 del self.__dict__[cache]
 
-    # @property
-    # def config(self) -> Config:
-    #     """Return config object."""
-    #     # if self.is_in_collection is True:
-    #     #     return None
-
-    #     return self.config_cached
-
-    # @cached_property
-    # def config_cached(self):
-    #     """Return config object."""
-    #     # the tcex_testing config, including default args as well as other configuration.
-    #     _config = Config()  # type: ignore
-
-    #     # log one type config items
-    #     self.log.info(f'step=setup, data=os-environments, environments={_config.os_environments}')
-
-    #     return _config
-
     def create_config(self, inputs: dict[str, Any]):
         """Create files necessary to start a Service App."""
         config = self.create_config_update(inputs)
@@ -301,11 +282,6 @@ class Aux:
         profile_dict['outputs'] = outputs_section
         self._profile_runner.data = profile_dict
 
-    @property
-    def is_in_collection(self):
-        """Return True if test case is in collection."""
-        return os.getenv('PYTEST_IN_COLLECTION', 'False') == 'True'
-
     @cached_property
     def module_app_model(self) -> ModuleAppModel:
         """Return the Module App Model."""
@@ -395,9 +371,6 @@ class Aux:
     @property
     def tc_token(self):
         """Return a valid API token."""
-        if self.is_in_collection is True:
-            return None
-
         if config_model.tc_api_path is None:  # no API path, no token
             return None
 

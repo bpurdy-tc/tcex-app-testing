@@ -87,7 +87,7 @@ class Migration_1_0_0(MigrationABC):
             Transformation(key='securityLabels', label='name'),
         ]
 
-        owner = data.pop('owner')
+        owner = data.pop('owner', None)
         if root_type not in ['cases', 'notes', 'artifacts'] and owner:
             data['ownerName'] = owner
 
