@@ -139,17 +139,17 @@ def pytest_unconfigure(config: Config):  # pylint: disable=unused-argument
 
     # display any Errors or Warnings in tests.log
     test_log_file = os.path.join(log_directory, 'tests.log')
+    errors_count = {'ERROR': 0, 'WARNING': 0}
     if os.path.isfile(test_log_file):
         with open(test_log_file, encoding='utf-8') as fh:
-            issues = []
             for line in fh:
-                if '- ERROR - ' in line or '- WARNING - ' in line:
-                    issues.append(line.strip())
-
-            if issues:
-                print('\nErrors and Warnings:')
-                for i in issues:
-                    print(f'- {i}')
+                if '- ERROR - ' in line:
+                     errors_count['ERROR'] += 1
+                elif '- WARNING - ' in line:
+                     errors_count['WARNING'] += 1
+        print(f'Error/Warning Count: {errors_count}')
+        if any((errors_count['ERROR'], errors_count['WARNING'])):
+            print('Please check your log/tests.log file')
 
     # remove service started file
     try:
