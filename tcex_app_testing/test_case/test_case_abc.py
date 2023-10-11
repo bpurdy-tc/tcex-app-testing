@@ -2,17 +2,13 @@
 # standard library
 import logging
 import os
-import re
 import sys
 import traceback
 from abc import ABC
 from datetime import datetime
 
-import responses
 # third-party
 import urllib3
-from requests import PreparedRequest
-from responses import registries
 
 # first-party
 from tcex_app_testing.config_model import config_model
@@ -23,7 +19,6 @@ urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)  # type: ign
 
 # get logger (self.log can't be used in setup_class and teardown_class)
 _logger = logging.getLogger(__name__.split('.', maxsplit=1)[0])
-
 
 
 class TestCaseABC(ABC):
@@ -121,6 +116,7 @@ class TestCaseABC(ABC):
         if self.aux.skip is False:
             if self.enable_update_profile:
                 self.aux.profile_runner.update.exit_message()
+                self.aux.profile_runner.update.request(self.aux.recorded_data)
 
             # the "initialized" property is used to determine if the profile was run previously
             # and the exit message and outputs have been updated. if the profile is not

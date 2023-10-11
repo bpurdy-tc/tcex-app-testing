@@ -87,6 +87,7 @@ class StageModel(BaseModel):
     vault: dict = Field({}, description='')
     request: dict = Field({}, description='A RequestModel object.')
 
+
 class ProfileModel(BaseModel):
     """Profile Model"""
 

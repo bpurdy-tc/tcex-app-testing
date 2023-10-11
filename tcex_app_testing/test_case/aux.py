@@ -82,6 +82,8 @@ class Aux:
         # Setting config model so it can be accessed in custom test files.
         self.config_model = config_model
 
+        self.recorded_data = {}
+
         # add methods to registry
         registry.add_service(App, self.app)
         registry.add_service(RequestsTc, self.session)
@@ -219,7 +221,6 @@ class Aux:
         pytestconfig: Config,
     ):
         """Stages and sets up the profile given a profile name"""
-        responses.add_passthru(re.compile(r'.*'))
 
         self.log.info(f'step=run, event=init-profile, profile={profile_name}')
         self._profile_runner = ProfileRunner(
@@ -229,6 +230,9 @@ class Aux:
             redis_client=self.app.key_value_store.redis_client,  # pylint: disable=no-member
             tcex_testing_context=self.tcex_testing_context,
         )
+
+        if not self._profile_runner.pytest_args_model.record:
+            responses.add_passthru(re.compile(r'.*'))
 
         # this value is not set at the time that the stager/validator is
         # initialized. setting it now should be soon enough for everything
@@ -250,15 +254,60 @@ class Aux:
         # stage kvstore data based on current profile
         self.stage_data()
 
+    def stage_and_replace(self, stage_key, data, stage_function, fail_on_error=True):
+        """Stage and replace data."""
+        if data is not None:
+            staged_data = stage_function(data)
+        else:
+            staged_data = stage_function()
+        self.staged_data.update({stage_key: staged_data})
+        self.replace_variables(fail_on_error=fail_on_error)
+
     def stage_data(self):
         """Stage data for current profile."""
-        self.staged_data.update(self.stager.construct_stage_data(self._profile_runner.model.stage))
-        self.replace_variables()
-        self.stager.request.stage(self._profile_runner.model.stage.request)
+        self.stage_and_replace('env', None, self.stager.env.stage_model_data, fail_on_error=False)
+        vault_data = self._profile_runner.data.get('stage', {}).get('vault', {})
+        self.stage_and_replace('vault', vault_data, self.stager.vault.stage, fail_on_error=False)
+        tc_data = self._profile_runner.data.get('stage', {}).get('threatconnect', {})
+        self.stage_and_replace('tc', tc_data, self.stager.threatconnect.stage, fail_on_error=True)
+        request_data = self._profile_runner.data.get('stage', {}).get('request', {})
+        if self._profile_runner.pytest_args_model.record:
+            self.stager.request.record_all(self.recorded_data)
+        else:
+            self.stager.request.stage(request_data)
         self.stager.redis.from_dict(self._profile_runner.model_resolved.stage.kvstore)
 
-    def replace_variables(self):
+    def log_staged_data(self):
+        """Log staged data."""
+        staged_data = ['----Staged Data Keys----']
+        for key, value in self.staged_data.items():
+            staged_data.append(f'---{key}---')
+            if key.lower() == 'env':
+                staged_data.extend(sorted(list(value.keys())))
+            else:
+                value = self.flatten_dict(value)
+                value = sorted(list({key_ for key_, value_ in value.items() if value_}))
+                staged_data.extend(value)
+        self.log.info('step=run, event=staged-data')
+        self.log.info('\n'.join(staged_data))
+        Render.panel.info('\n'.join(staged_data))
+
+    def flatten_dict(self, d, parent_key='', separator='.') -> dict:
+        """Flatten a nested dictionary."""
+        items = []
+        for key, value in d.items():
+            new_key = f'{parent_key}{separator}{key}' if parent_key else key
+            if isinstance(value, dict):
+                items.extend(self.flatten_dict(value, new_key, separator=separator).items())
+            else:
+                items.append((new_key, value))
+        return dict(items)
+
+    def replace_variables(self, fail_on_error=True, prefixes=None):
         """Replace variables in profile with staged data."""
+        if prefixes is None:
+            prefixes = ['env', 'tc', 'vault']
+
         profile_dict = self._profile_runner.model.dict()
         outputs_section = profile_dict.pop('outputs', {})
         profile = json.dumps(profile_dict)
@@ -269,9 +318,17 @@ class Aux:
                 full_match = m.group(0)
                 jmespath_expression = m.group(1)
                 jmespath_expression = jmespath_expression.encode().decode('unicode_escape')
+
+                if not any(jmespath_expression.startswith(f'{prefix}.') for prefix in prefixes):
+                    continue
+
                 value = jmespath.search(jmespath_expression, self.staged_data)
 
+                if not value and not fail_on_error:
+                    continue
+
                 if not value:
+                    self.log_staged_data()
                     self.log.error(
                         f'step=run, event=replace-variables, error={full_match} '
                         'could not be resolved.'
@@ -280,8 +337,10 @@ class Aux:
 
                 profile = profile.replace(full_match, str(value))
             except Exception:
-                self.log.exception(f'step=run, event=replace-variables, error={full_match}')
-                Render.panel.failure(f'Invalid variable/jmespath found {full_match}.')
+                self.log_staged_data()
+                if fail_on_error:
+                    self.log.exception(f'step=run, event=replace-variables, error={full_match}')
+                    Render.panel.failure(f'Invalid variable/jmespath found {full_match}.')
         profile_dict = json.loads(profile)
         profile_dict['outputs'] = outputs_section
         self._profile_runner.data = profile_dict
