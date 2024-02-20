@@ -27,7 +27,7 @@ dependencies = [
   "isort",
   "jmespath",
   "mako",
-  "paho-mqtt",
+  "paho-mqtt<2.0.0",
   "pyaes",
   "pydantic<2.0.0",
   "pytest",
@@ -127,6 +127,7 @@ disable = [
   "too-many-branches",
   "too-many-instance-attributes",
   "too-many-locals",
+  "too-many-lines",
   "too-many-public-methods",
   "too-many-return-statements",
 ]
@@ -141,6 +142,8 @@ exclude = [
 ]
 pythonPlatform = "Linux"
 pythonVersion = "3.11"
+reportIncompatibleMethodOverride = false
+reportIncompatibleVariableOverride = false
 
 [tool.pytest.ini_options]
 filterwarnings = []

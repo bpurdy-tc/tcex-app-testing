@@ -3,7 +3,6 @@
 import json
 import os
 import re
-import shutil
 import uuid
 from functools import partial
 from pathlib import Path
@@ -59,6 +58,8 @@ def generate_file_name(request, response) -> str:
 
     # Convert the dictionary to a JSON string
     json_data = json.dumps(request.params, sort_keys=True)
+    if request.body:
+        json_data += str(request.body)
 
     # Define a namespace UUID (e.g., UUID for DNS namespace)
     namespace_uuid = uuid.UUID('6ba7b810-9dad-11d1-80b4-00c04fd430c8')
@@ -86,11 +87,14 @@ def record_all_callback(request, recorded_data: dict, output_path: Path):
     }
     request_args = {k: v for k, v in request_args.items() if v}
     response = requests.request(**request_args)
+    if request.url.startswith(os.getenv('VAULT_URL')) or request.method == 'OPTIONS':
+        responses.start()
+        return response.status_code, {}, response.text
     file_name = generate_file_name(request, response)
     with open(output_path / Path(file_name), 'w', encoding='utf-8') as f:
         content = response.text
         if file_name.endswith('.json'):
-            content = json.dumps(response.json(), indent=4)
+            content = json.dumps(response.json())
         f.write(content)
 
     data = {
@@ -129,11 +133,13 @@ class StagerRequest:
 
     def record_all(self, recorded_data) -> None:
         """Record all requests."""
-        try:
-            shutil.rmtree(self.output_path)
-        except OSError:
-            pass
-        methods = [responses.GET, responses.POST, responses.PUT, responses.DELETE]
+        methods = [
+            responses.GET,
+            responses.POST,
+            responses.PUT,
+            responses.DELETE,
+            responses.OPTIONS,
+        ]
         for method in methods:
             responses.add_callback(
                 method,
